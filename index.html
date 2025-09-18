@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCheck - Medicine Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .header .subtitle {
+            text-align: center;
+            opacity: 0.9;
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+
+        /* Status Banner */
+        .status-banner {
+            background: #10b981;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-banner.offline {
+            background: #ef4444;
+        }
+
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            color: #64748b;
+        }
+
+        .nav-item:hover, .nav-item:focus {
+            background: #f1f5f9;
+            outline: none;
+        }
+
+        .nav-item.active {
+            color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            margin: 0 auto 4px;
+            display: block;
+        }
+
+        .nav-item span {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            padding: 20px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        .card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #374151;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover, .btn-secondary:focus {
+            background: #4b5563;
+            outline: none;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover, .btn-danger:focus {
+            background: #dc2626;
+            outline: none;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover, .btn-success:focus {
+            background: #059669;
+            outline: none;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Medicine List */
+        .medicine-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .medicine-item:hover, .medicine-item:focus {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+            outline: none;
+        }
+
+        .medicine-item.expired {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+
+        .medicine-item.expiring {
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+        }
+
+        .medicine-item.good {
+            border-left: 4px solid #10b981;
+        }
+
+        .medicine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1e293b;
+        }
+
+        .medicine-status {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .medicine-status.expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .medicine-status.expiring {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .medicine-status.good {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .medicine-details {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .medicine-quantity {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .medicine-quantity.low {
+            color: #dc2626;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.875rem;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fed7aa;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Reminders */
+        .reminder-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .reminder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .reminder-medicine {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .reminder-time {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .reminder-dose {
+            font-size: 0.875rem;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        /* Emergency Contacts */
+        .contact-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .contact-relation {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .contact-phone {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-phone:hover, .contact-phone:focus {
+            text-decoration: underline;
+            outline: none;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1f2937;
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 300px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-header {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .toast-body {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 16px;
+            text-align: center;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #3b82f6;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* File Input */
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f9fafb;
+        }
+
+        .file-input-label:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 12px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group .btn {
+                flex: none;
+            }
+        }
+
+        /* Focus styles for accessibility */
+        *:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Banner -->
+    <div id="statusBanner" class="status-banner">
+        <span id="statusText">Online</span>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>MediCheck</h1>
+            <div class="subtitle">Medicine Expiry & Stock Tracker</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Landing Page -->
+        <div id="landing" class="page active">
+            <div class="card">
+                <h2>Welcome to MediCheck</h2>
+                <p>Keep track of your medicines, expiry dates, and dosage reminders all in one place.</p>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-full" onclick="showPage('dashboard')">
+                        Get Started
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Features</h3>
+                <ul style="padding-left: 20px; color: #6b7280;">
+                    <li>Track medicine expiry dates</li>
+                    <li>Monitor stock levels</li>
+                    <li>Set dosage reminders</li>
+                    <li>Emergency contacts</li>
+                    <li>Offline support</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="page">
+            <div class="card">
+                <h2>Dashboard</h2>
+                <div id="dashboardStats">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div style="text-align: center; padding: 16px; background: #eff6ff; border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: #3b82f6;" id="totalMedicines">0</div>
+                            <div style="font-size: 0.875rem; color: #6b7280;">Total Medicines</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: #fef2f2; border-radius: 8px;">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: #ef4444;" id="expiredCount">0</div>
+                            <div style="font-size: 0.875rem; color: #6b7280;">Expired</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Recent Alerts</h3>
+                <div id="recentAlerts">
+                    <p style="color: #6b7280; text-align: center;">No alerts</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Today's Reminders</h3>
+                <div id="todayReminders">
+                    <p style="color: #6b7280; text-align: center;">No reminders for today</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Medicine -->
+        <div id="addMedicine" class="page">
+            <div class="card">
+                <h2>Add Medicine</h2>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('manual')">Manual</button>
+                    <button class="tab" onclick="switchTab('barcode')">Barcode</button>
+                    <button class="tab" onclick="switchTab('photo')">Photo</button>
+                </div>
+
+                <!-- Manual Form -->
+                <form id="manualForm" class="tab-content active">
+                    <div class="form-group">
+                        <label for="medicineName">Medicine Name *</label>
+                        <input type="text" id="medicineName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineType">Type</label>
+                        <select id="medicineType">
+                            <option value="tablet">Tablet</option>
+                            <option value="capsule">Capsule</option>
+                            <option value="syrup">Syrup</option>
+                            <option value="injection">Injection</option>
+                            <option value="cream">Cream</option>
+                            <option value="drops">Drops</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date *</label>
+                        <input type="date" id="expiryDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantity">Quantity *</label>
+                        <input type="number" id="quantity" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="threshold">Low Stock Threshold</label>
+                        <input type="number" id="threshold" min="1" value="5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dosage">Dosage Instructions</label>
+                        <textarea id="dosage" rows="3" placeholder="e.g., Take 1 tablet twice daily after meals"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reminderTimes">Reminder Times (comma separated)</label>
+                        <input type="text" id="reminderTimes" placeholder="e.g., 08:00, 20:00">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Add Medicine</button>
+                </form>
+
+                <!-- Barcode Form -->
+                <div id="barcodeForm" class="tab-content" style="display: none;">
+                    <div class="alert alert-info">
+                        <strong>Barcode Scanner (Mock)</strong><br>
+                        In a real app, this would use the device camera to scan barcodes.
+                    </div>
+                    
+                    <button class="btn btn-primary btn-full" onclick="mockBarcodeScann()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="m9 17 6.55-6.55"/>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                        </svg>
+                        Scan Barcode
+                    </button>
+                </div>
+
+                <!-- Photo Form -->
+                <div id="photoForm" class="tab-content" style="display: none;">
+                    <div class="alert alert-info">
+                        <strong>Photo OCR (Mock)</strong><br>
+                        Upload a photo and we'll try to extract the medicine name from the filename.
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="medicinePhoto">Upload Medicine Photo</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="medicinePhoto" class="file-input" accept="image/*" onchange="handlePhotoUpload(event)">
+                            <label for="medicinePhoto" class="file-input-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="m9 17 6.55-6.55"/>
+                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                </svg>
+                                Choose Photo
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="photoPreview" style="display: none;">
+                        <img id="previewImage" style="max-width: 100%; border-radius: 8px; margin-bottom: 16px;">
+                        <div class="alert alert-info">
+                            <strong>Extracted:</strong> <span id="extractedName"></span>
+                        </div>
+                        <button class="btn btn-primary btn-full" onclick="useExtractedName()">Use This Name</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicine List -->
+        <div id="medicineList" class="page">
+            <div class="card">
+                <h2>Medicine List</h2>
+                <div id="medicineItems">
+                    <p style="color: #6b7280; text-align: center;">No medicines added yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicine Detail -->
+        <div id="medicineDetail" class="page">
+            <div class="card">
+                <div id="medicineDetailContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reminders -->
+        <div id="reminders" class="page">
+            <div class="card">
+                <h2>Dosage Reminders</h2>
+                <div id="remindersList">
+                    <p style="color: #6b7280; text-align: center;">No reminders set</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div id="alerts" class="page">
+            <div class="card">
+                <h2>Alerts</h2>
+                <div id="alertsList">
+                    <p style="color: #6b7280; text-align: center;">No alerts</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Contacts -->
+        <div id="emergency" class="page">
+            <div class="card">
+                <h2>Emergency Contacts</h2>
+                <div id="emergencyContacts">
+                    <!-- Contacts will be populated by JavaScript -->
+                </div>
+                
+                <button class="btn btn-primary btn-full" onclick="showAddContactForm()">
+                    Add Contact
+                </button>
+            </div>
+
+            <div id="addContactForm" class="card" style="display: none;">
+                <h3>Add Emergency Contact</h3>
+                <form onsubmit="addEmergencyContact(event)">
+                    <div class="form-group">
+                        <label for="contactName">Name *</label>
+                        <input type="text" id="contactName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactRelation">Relation</label>
+                        <input type="text" id="contactRelation" placeholder="e.g., Doctor, Family">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactPhone">Phone Number *</label>
+                        <input type="tel" id="contactPhone" required>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="hideAddContactForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Contact</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div id="settings" class="page">
+            <div class="card">
+                <h2>Settings</h2>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary btn-full" onclick="exportData()">
+                        Export Backup
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="importFile">Import Backup</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="importFile" class="file-input" accept=".json" onchange="importData(event)">
+                        <label for="importFile" class="file-input-label">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10,9 9,9 8,9"/>
+                            </svg>
+                            Choose Backup File
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-danger btn-full" onclick="clearAllData()">
+                        Clear All Data
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>About</h3>
+                <p style="color: #6b7280; margin-bottom: 8px;">MediCheck v1.0</p>
+                <p style="color: #6b7280; font-size: 0.875rem;">Medicine Expiry & Stock Tracker for Homes</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+        <button class="nav-item active" onclick="showPage('dashboard')" aria-label="Dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9,22 9,12 15,12 15,22"/>
+            </svg>
+            <span>Home</span>
+        </button>
+
+        <button class="nav-item" onclick="showPage('addMedicine')" aria-label="Add Medicine">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            <span>Add</span>
+        </button>
+
+        <button class="nav-item" onclick="showPage('medicineList')" aria-label="Medicine List">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/>
+                <path d="M9 7V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+            <span>List</span>
+        </button>
+
+        <button class="nav-item" onclick="showPage('reminders')" aria-label="Reminders">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+            </svg>
+            <span>Reminders</span>
+        </button>
+
+        <button class="nav-item" onclick="showPage('alerts')" aria-label="Alerts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>Alerts</span>
+        </button>
+
+        <button class="nav-item" onclick="showPage('emergency')" aria-label="Emergency Contacts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <span>Emergency</span>
+        </button>
+
+        <button class="nav-item" onclick="showPage('settings')" aria-label="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>Settings</span>
+        </button>
+    </nav>
+
+    <!-- Toast Container -->
+    <div id="toast" class="toast">
+        <div class="toast-header" id="toastHeader"></div>
+        <div class="toast-body" id="toastBody"></div>
+    </div>
+
+    <script>
+        // Application State
+        let medicines = [];
+        let emergencyContacts = [];
+        let reminders = [];
+        let currentMedicine = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            seedData();
+            updateDashboard();
+            updateMedicineList();
+            updateAlerts();
+            updateReminders();
+            updateEmergencyContacts();
+            checkOnlineStatus();
+            registerServiceWorker();
+            
+            // Set up form submission
+            document.getElementById('manualForm').addEventListener('submit', addMedicine);
+            
+            // Check for reminders every minute
+            setInterval(checkReminders, 60000);
+            checkReminders(); // Check immediately
+        });
+
+        // Service Worker Registration
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'medicheck-v1';
+                    const urlsToCache = ['/'];
+                    
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => response || fetch(event.request))
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            }
+        }
+
+        // Online/Offline Status
+        function checkOnlineStatus() {
+            const statusBanner = document.getElementById('statusBanner');
+            const statusText = document.getElementById('statusText');
+            
+            function updateStatus() {
+                if (navigator.onLine) {
+                    statusBanner.className = 'status-banner';
+                    statusText.textContent = 'Online';
+                } else {
+                    statusBanner.className = 'status-banner offline';
+                    statusText.textContent = 'Offline';
+                }
+            }
+            
+            updateStatus();
+            window.addEventListener('online', updateStatus);
+            window.addEventListener('offline', updateStatus);
+        }
+
+        // Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Update page-specific content
+            if (pageId === 'dashboard') {
+                updateDashboard();
+            } else if (pageId === 'medicineList') {
+                updateMedicineList();
+            } else if (pageId === 'alerts') {
+                updateAlerts();
+            } else if (pageId === 'reminders') {
+                updateReminders();
+            }
+        }
+
+        // Tab switching for Add Medicine
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            if (tabName === 'manual') {
+                document.getElementById('manualForm').style.display = 'block';
+            } else if (tabName === 'barcode') {
+                document.getElementById('barcodeForm').style.display = 'block';
+            } else if (tabName === 'photo') {
+                document.getElementById('photoForm').style.display = 'block';
+            }
+        }
+
+        // Data Management
+        function saveData() {
+            localStorage.setItem('medicheck_medicines', JSON.stringify(medicines));
+            localStorage.setItem('medicheck_contacts', JSON.stringify(emergencyContacts));
+            localStorage.setItem('medicheck_reminders', JSON.stringify(reminders));
+        }
+
+        function loadData() {
+            const savedMedicines = localStorage.getItem('medicheck_medicines');
+            const savedContacts = localStorage.getItem('medicheck_contacts');
+            const savedReminders = localStorage.getItem('medicheck_reminders');
+            
+            if (savedMedicines) {
+                medicines = JSON.parse(savedMedicines);
+            }
+            
+            if (savedContacts) {
+                emergencyContacts = JSON.parse(savedContacts);
+            }
+            
+            if (savedReminders) {
+                reminders = JSON.parse(savedReminders);
+            }
+        }
+
+        function seedData() {
+            if (medicines.length === 0) {
+                medicines = [
+                    {
+                        id: 1,
+                        name: 'Paracetamol',
+                        type: 'tablet',
+                        expiryDate: '2025-06-15',
+                        quantity: 20,
+                        threshold: 5,
+                        dosage: 'Take 1 tablet every 6 hours as needed for pain or fever',
+                        reminderTimes: ['08:00', '14:00', '20:00'],
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        name: 'Ibuprofen',
+                        type: 'tablet',
+                        expiryDate: '2024-12-20',
+                        quantity: 3,
+                        threshold: 5,
+                        dosage: 'Take 1 tablet every 8 hours with food',
+                        reminderTimes: ['09:00', '17:00'],
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: 3,
+                        name: 'Cough Syrup',
+                        type: 'syrup',
+                        expiryDate: '2024-11-30',
+                        quantity: 1,
+                        threshold: 1,
+                        dosage: 'Take 10ml three times daily',
+                        reminderTimes: ['08:00', '14:00', '20:00'],
+                        dateAdded: new Date().toISOString()
+                    }
+                ];
+            }
+            
+            if (emergencyContacts.length === 0) {
+                emergencyContacts = [
+                    {
+                        id: 1,
+                        name: 'Dr. Smith',
+                        relation: 'Family Doctor',
+                        phone: '+1-555-0123'
+                    }
+                ];
+            }
+            
+            saveData();
+        }
+
+        // Medicine Management
+        function addMedicine(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('medicineName').value;
+            const type = document.getElementById('medicineType').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const threshold = parseInt(document.getElementById('threshold').value);
+            const dosage = document.getElementById('dosage').value;
+            const reminderTimes = document.getElementById('reminderTimes').value
+                .split(',')
+                .map(time => time.trim())
+                .filter(time => time);
+            
+            const medicine = {
+                id: Date.now(),
+                name,
+                type,
+                expiryDate,
+                quantity,
+                threshold,
+                dosage,
+                reminderTimes,
+                dateAdded: new Date().toISOString()
+            };
+            
+            medicines.push(medicine);
+            saveData();
+            
+            // Reset form
+            document.getElementById('manualForm').reset();
+            
+            // Show success message
+            showToast('Success', `${name} added successfully!`);
+            
+            // Update displays
+            updateDashboard();
+            updateMedicineList();
+            updateAlerts();
+            
+            // Switch to medicine list
+            showPage('medicineList');
+        }
+
+        function getMedicineStatus(medicine) {
+            const today = new Date();
+            const expiryDate = new Date(medicine.expiryDate);
+            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntilExpiry < 0) {
+                return 'expired';
+            } else if (daysUntilExpiry <= 30) {
+                return 'expiring';
+            } else {
+                return 'good';
+            }
+        }
+
+        function updateMedicineList() {
+            const container = document.getElementById('medicineItems');
+            
+            if (medicines.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center;">No medicines added yet</p>';
+                return;
+            }
+            
+            container.innerHTML = medicines.map(medicine => {
+                const status = getMedicineStatus(medicine);
+                const isLowStock = medicine.quantity <= medicine.threshold;
+                
+                let statusText = status === 'expired' ? 'Expired' : 
+                               status === 'expiring' ? 'Expiring Soon' : 'Good';
+                
+                return `
+                    <div class="medicine-item ${status}" onclick="showMedicineDetail(${medicine.id})" tabindex="0" role="button" aria-label="View details for ${medicine.name}">
+                        <div class="medicine-header">
+                            <div class="medicine-name">${medicine.name}</div>
+                            <div class="medicine-status ${status}">${statusText}</div>
+                        </div>
+                        <div class="medicine-details">
+                            <div>Type: ${medicine.type} | Expires: ${new Date(medicine.expiryDate).toLocaleDateString()}</div>
+                            <div class="medicine-quantity ${isLowStock ? 'low' : ''}">
+                                Quantity: ${medicine.quantity} ${isLowStock ? '(Low Stock)' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showMedicineDetail(medicineId) {
+            const medicine = medicines.find(m => m.id === medicineId);
+            if (!medicine) return;
+            
+            currentMedicine = medicine;
+            const status = getMedicineStatus(medicine);
+            const isLowStock = medicine.quantity <= medicine.threshold;
+            
+            const content = `
+                <h2>${medicine.name}</h2>
+                <div style="margin-bottom: 20px;">
+                    <div class="medicine-status ${status}" style="display: inline-block; margin-bottom: 16px;">
+                        ${status === 'expired' ? 'Expired' : status === 'expiring' ? 'Expiring Soon' : 'Good'}
+                    </div>
+                </div>
+                
+                <div style="display: grid; gap: 12px; margin-bottom: 20px;">
+                    <div><strong>Type:</strong> ${medicine.type}</div>
+                    <div><strong>Expiry Date:</strong> ${new Date(medicine.expiryDate).toLocaleDateString()}</div>
+                    <div><strong>Quantity:</strong> <span class="${isLowStock ? 'medicine-quantity low' : 'medicine-quantity'}">${medicine.quantity} ${isLowStock ? '(Low Stock)' : ''}</span></div>
+                    <div><strong>Low Stock Threshold:</strong> ${medicine.threshold}</div>
+                    <div><strong>Dosage:</strong> ${medicine.dosage || 'Not specified'}</div>
+                    <div><strong>Reminder Times:</strong> ${medicine.reminderTimes.length > 0 ? medicine.reminderTimes.join(', ') : 'None'}</div>
+                    <div><strong>Date Added:</strong> ${new Date(medicine.dateAdded).toLocaleDateString()}</div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="takeDose()">Take Dose</button>
+                    <button class="btn btn-danger" onclick="deleteMedicine()">Delete</button>
+                </div>
+            `;
+            
+            document.getElementById('medicineDetailContent').innerHTML = content;
+            showPage('medicineDetail');
+        }
+
+        function takeDose() {
+            if (!currentMedicine) return;
+            
+            if (currentMedicine.quantity > 0) {
+                currentMedicine.quantity--;
+                saveData();
+                showToast('Dose Taken', `${currentMedicine.name} dose recorded. Remaining: ${currentMedicine.quantity}`);
+                showMedicineDetail(currentMedicine.id); // Refresh detail view
+                updateMedicineList();
+                updateDashboard();
+            } else {
+                showToast('No Stock', `No ${currentMedicine.name} remaining!`);
+            }
+        }
+
+        function deleteMedicine() {
+            if (!currentMedicine) return;
+            
+            if (confirm(`Are you sure you want to delete ${currentMedicine.name}?`)) {
+                medicines = medicines.filter(m => m.id !== currentMedicine.id);
+                saveData();
+                showToast('Deleted', `${currentMedicine.name} deleted successfully`);
+                updateMedicineList();
+                updateDashboard();
+                showPage('medicineList');
+            }
+        }
+
+        // Dashboard
+        function updateDashboard() {
+            const totalMedicines = medicines.length;
+            const expiredMedicines = medicines.filter(m => getMedicineStatus(m) === 'expired').length;
+            
+            document.getElementById('totalMedicines').textContent = totalMedicines;
+            document.getElementById('expiredCount').textContent = expiredMedicines;
+            
+            // Update recent alerts
+            const alerts = getAlerts().slice(0, 3);
+            const alertsContainer = document.getElementById('recentAlerts');
+            
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = '<p style="color: #6b7280; text-align: center;">No alerts</p>';
+            } else {
+                alertsContainer.innerHTML = alerts.map(alert => `
+                    <div class="alert alert-${alert.type}">
+                        <strong>${alert.title}</strong><br>
+                        ${alert.message}
+                    </div>
+                `).join('');
+            }
+            
+            // Update today's reminders
+            const todayReminders = getTodayReminders();
+            const remindersContainer = document.getElementById('todayReminders');
+            
+            if (todayReminders.length === 0) {
+                remindersContainer.innerHTML = '<p style="color: #6b7280; text-align: center;">No reminders for today</p>';
+            } else {
+                remindersContainer.innerHTML = todayReminders.slice(0, 3).map(reminder => `
+                    <div style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+                        <strong>${reminder.medicine}</strong> at ${reminder.time}<br>
+                        <small style="color: #6b7280;">${reminder.dosage}</small>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Alerts
+        function getAlerts() {
+            const alerts = [];
+            
+            medicines.forEach(medicine => {
+                const status = getMedicineStatus(medicine);
+                const isLowStock = medicine.quantity <= medicine.threshold;
+                
+                if (status === 'expired') {
+                    alerts.push({
+                        type: 'danger',
+                        title: 'Expired Medicine',
+                        message: `${medicine.name} expired on ${new Date(medicine.expiryDate).toLocaleDateString()}`
+                    });
+                } else if (status === 'expiring') {
+                    const daysUntilExpiry = Math.ceil((new Date(medicine.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    alerts.push({
+                        type: 'warning',
+                        title: 'Expiring Soon',
+                        message: `${medicine.name} expires in ${daysUntilExpiry} days`
+                    });
+                }
+                
+                if (isLowStock) {
+                    alerts.push({
+                        type: 'warning',
+                        title: 'Low Stock',
+                        message: `${medicine.name} has only ${medicine.quantity} remaining`
+                    });
+                }
+            });
+            
+            return alerts;
+        }
+
+        function updateAlerts() {
+            const alerts = getAlerts();
+            const container = document.getElementById('alertsList');
+            
+            if (alerts.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center;">No alerts</p>';
+            } else {
+                container.innerHTML = alerts.map(alert => `
+                    <div class="alert alert-${alert.type}">
+                        <strong>${alert.title}</strong><br>
+                        ${alert.message}
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Reminders
+        function getTodayReminders() {
+            const todayReminders = [];
+            
+            medicines.forEach(medicine => {
+                if (medicine.reminderTimes && medicine.reminderTimes.length > 0) {
+                    medicine.reminderTimes.forEach(time => {
+                        todayReminders.push({
+                            medicine: medicine.name,
+                            time: time,
+                            dosage: medicine.dosage || 'Take as prescribed',
+                            medicineId: medicine.id
+                        });
+                    });
+                }
+            });
+            
+            return todayReminders.sort((a, b) => a.time.localeCompare(b.time));
+        }
+
+        function updateReminders() {
+            const todayReminders = getTodayReminders();
+            const container = document.getElementById('remindersList');
+            
+            if (todayReminders.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center;">No reminders set</p>';
+            } else {
+                container.innerHTML = todayReminders.map(reminder => `
+                    <div class="reminder-item">
+                        <div class="reminder-header">
+                            <div class="reminder-medicine">${reminder.medicine}</div>
+                            <div class="reminder-time">${reminder.time}</div>
+                        </div>
+                        <div class="reminder-dose">${reminder.dosage}</div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="snoozeReminder('${reminder.medicine}', '${reminder.time}')">
+                                Snooze 15min
+                            </button>
+                            <button class="btn btn-success" onclick="takeReminderDose(${reminder.medicineId})">
+                                Take Dose
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function checkReminders() {
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            medicines.forEach(medicine => {
+                if (medicine.reminderTimes && medicine.reminderTimes.includes(currentTime)) {
+                    showReminderToast(medicine);
+                }
+            });
+        }
+
+        function showReminderToast(medicine) {
+            showToast(
+                `Reminder: ${medicine.name}`,
+                `Time to take your ${medicine.name}. ${medicine.dosage || 'Take as prescribed'}`
+            );
+        }
+
+        function snoozeReminder(medicineName, time) {
+            showToast('Snoozed', `${medicineName} reminder snoozed for 15 minutes`);
+            // In a real app, you would implement actual snooze functionality
+        }
+
+        function takeReminderDose(medicineId) {
+            const medicine = medicines.find(m => m.id === medicineId);
+            if (medicine && medicine.quantity > 0) {
+                medicine.quantity--;
+                saveData();
+                showToast('Dose Taken', `${medicine.name} dose recorded. Remaining: ${medicine.quantity}`);
+                updateReminders();
+                updateMedicineList();
+                updateDashboard();
+            } else {
+                showToast('No Stock', `No ${medicine.name} remaining!`);
+            }
+        }
+
+        // Emergency Contacts
+        function updateEmergencyContacts() {
+            const container = document.getElementById('emergencyContacts');
+            
+            if (emergencyContacts.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center;">No emergency contacts added</p>';
+            } else {
+                container.innerHTML = emergencyContacts.map(contact => `
+                    <div class="contact-item">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-relation">${contact.relation}</div>
+                        <a href="tel:${contact.phone}" class="contact-phone">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            ${contact.phone}
+                        </a>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function showAddContactForm() {
+            document.getElementById('addContactForm').style.display = 'block';
+        }
+
+        function hideAddContactForm() {
+            document.getElementById('addContactForm').style.display = 'none';
+            document.getElementById('contactName').value = '';
+            document.getElementById('contactRelation').value = '';
+            document.getElementById('contactPhone').value = '';
+        }
+
+        function addEmergencyContact(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('contactName').value;
+            const relation = document.getElementById('contactRelation').value;
+            const phone = document.getElementById('contactPhone').value;
+            
+            const contact = {
+                id: Date.now(),
+                name,
+                relation,
+                phone
+            };
+            
+            emergencyContacts.push(contact);
+            saveData();
+            
+            hideAddContactForm();
+            updateEmergencyContacts();
+            showToast('Success', `${name} added to emergency contacts`);
+        }
+
+        // Mock Functions
+        function mockBarcodeScann() {
+            showToast('Barcode Scanned', 'Mock barcode scan completed. In a real app, this would use the camera.');
+            
+            // Simulate filling the form with scanned data
+            setTimeout(() => {
+                document.getElementById('medicineName').value = 'Aspirin';
+                document.getElementById('medicineType').value = 'tablet';
+                document.getElementById('quantity').value = '30';
+                switchTab('manual');
+                showToast('Data Filled', 'Scanned data filled in the form');
+            }, 1000);
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('photoPreview');
+                const image = document.getElementById('previewImage');
+                const extractedName = document.getElementById('extractedName');
+                
+                image.src = e.target.result;
+                
+                // Mock OCR - extract medicine name from filename
+                const fileName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+                const mockExtractedName = fileName.replace(/[^a-zA-Z\s]/g, '').trim() || 'Unknown Medicine';
+                
+                extractedName.textContent = mockExtractedName;
+                preview.style.display = 'block';
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function useExtractedName() {
+            const extractedName = document.getElementById('extractedName').textContent;
+            document.getElementById('medicineName').value = extractedName;
+            switchTab('manual');
+            showToast('Name Used', 'Extracted name filled in the form');
+        }
+
+        // Settings
+        function exportData() {
+            const data = {
+                medicines,
+                emergencyContacts,
+                reminders,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `medicheck-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Export Complete', 'Backup file downloaded successfully');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.medicines) medicines = data.medicines;
+                    if (data.emergencyContacts) emergencyContacts = data.emergencyContacts;
+                    if (data.reminders) reminders = data.reminders;
+                    
+                    saveData();
+                    updateDashboard();
+                    updateMedicineList();
+                    updateAlerts();
+                    updateReminders();
+                    updateEmergencyContacts();
+                    
+                    showToast('Import Complete', 'Data imported successfully');
+                } catch (error) {
+                    showToast('Import Failed', 'Invalid backup file format');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                medicines = [];
+                emergencyContacts = [];
+                reminders = [];
+                
+                localStorage.removeItem('medicheck_medicines');
+                localStorage.removeItem('medicheck_contacts');
+                localStorage.removeItem('medicheck_reminders');
+                
+                updateDashboard();
+                updateMedicineList();
+                updateAlerts();
+                updateReminders();
+                updateEmergencyContacts();
+                
+                showToast('Data Cleared', 'All data has been cleared');
+            }
+        }
+
+        // Toast Notifications
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            const header = document.getElementById('toastHeader');
+            const body = document.getElementById('toastBody');
+            
+            header.textContent = title;
+            body.textContent = message;
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                const target = event.target;
+                if (target.classList.contains('medicine-item')) {
+                    event.preventDefault();
+                    target.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
